@@ -1,6 +1,6 @@
 # Wake On Lan Relay Server
 
-Este servidor esnifa un dispositivo de red, para tetectar tramas de WoL y reenviarlas.
+Este servidor esnifa un dispositivo de red, para detectar tramas de WoL **en la red local** y reenviarlas.
 
 Este servidor solo tiene sentido en routers con varias interficies donde los paquetes de WoL generados en la red local no pasan a la red externa.
 
@@ -24,7 +24,7 @@ Direccion del repositorio:
 - ssh: git@github.com:uab-dtic/wolRelay.git"
 
 ```bash
-git clone {REPOSITORIO} /opt/wolrelay
+git clone {REPOSITORIO} /opt/wolRelay
 ```
 
 Creamos el entorno virtual
@@ -113,6 +113,28 @@ Comprobar el estadodel servicio
 
 ```bash
 sudo systemctl status wolRelay
+```
+
+## configuraciones adicionales
+
+Hay que tener en cuenta el fichero de log que se genere y configurar el logrotate para que no se llene el disco inecesariamente
+
+Por ejemplo podemos añadir el siguiente **/etc/logrotate.d/wolRelay**
+
+```data
+/var/log/wolRelay.log {
+
+    daily
+    rotate 2
+    compress
+
+    delaycompress
+    missingok
+
+    postrotate
+        systemctl restart wolRelay
+    endscript
+}
 ```
 
 (Copyright 2024 JRM SID-SABADELL)
