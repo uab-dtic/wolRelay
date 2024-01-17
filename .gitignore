@@ -1,0 +1,12 @@
+# python environment
+env
+venv
+
+# LOG
+*.log
+
+# vagrant
+.vagrant
+
+# Configuracion de explotacion
+wolRelay.conf

@@ -1,0 +1,22 @@
+[Unit]
+Description=wolRelay service
+Wants=network-online.target
+After=network.target network-online.target
+
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+
+Type=simple
+
+User=root
+
+WorkingDirectory=/opt/wolRelay
+EnvironmentFile=-/opt/wolRelay/wolRelay.conf
+ExecStart=/opt/wolRelay/env/bin/python3  /opt/wolRelay/wolRelay.py $OPTIONS
+
+[Install]
+WantedBy=multi-user.target

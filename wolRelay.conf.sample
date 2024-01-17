@@ -1,0 +1,14 @@
+# 
+
+# Options wolRelay.py -h 
+# ----------------------
+# ./wolRelay.py [-h] [-i device]  [-l log file]
+
+#    -h show this help.
+#    -i Listen on device. Default eth0.
+#    -t target ip. Default 255.255.255.255.
+#    -r target port. Default 9.
+#    -l file_path
+#    -v loglevel LOGLEVEL Values [ DEBUG | INFO (default) | WARN | ERROR | CRITICAL ]
+
+OPTIONS="-v DEBUG -l /var/log/wolRelay.log"
