@@ -56,14 +56,15 @@ root@localhost:~# cd /opt/wolrelay
 root@localhost:/opt/wolrelay# . env/bin/activate
 (env) root@localhost:/opt/wolrelay# ./wolRelay -h
 wolRelay
-Forma de uso:
-    /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py [-h] [-i device]  [-l log file] [ -t IP] [-r port]
+    /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py [-h] [-i device] [-t targetIp] [-r targetPort] [-w IPList][-l log file] [-v LOGLEVEL]
 
    -h show this help.
    -i Listen on device. Default eth0.
    -t target ip. Default 255.255.255.255.
    -r target port. Default 9.
-
+   -w <lista de ips separadas por ,>
+   -l file_path
+   -v LEVEL. Default INFO.
 
 Variables de entorno:
    LOGLEVEL=[DEBUG|INFO|WARNING|ERROR|CRITICAL] default=INFO
@@ -71,10 +72,13 @@ Variables de entorno:
 Examples:
      /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py -h 
      /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py -i eth0
-     /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py -l /var/log/wol_replicator.log
      /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py -t 192.168.1.100
      /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py -r 9000
+     /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py -w '192.168.1.2,192.168.1.3
+     /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py -l /var/log/wolRelay.log
+     /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py -v DEBUG
      LOGLEVEL=DEBUG /home/jroman/_SID_SBD_/wolRelay/./wolRelay.py
+
 
 ```
 

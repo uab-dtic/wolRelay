@@ -13,18 +13,20 @@ TARGET_ADDRESS="255.255.255.255"
 TARGET_PORT=9
 LOG_FILE=""
 LOG_LEVEL="INFO"
+WHO_CAN_SEND_WOL=[]
 
 def show_help( error=0 ):
     logger.debug( "show_help")
     print( 
         "wolRelay", 
         "Forma de uso:",
-        "    {} [-h] [-i device]  [-l log file]".format( __file__ ),
+        "    {} [-h] [-i device] [-t targetIp] [-r targetPort] [-w IPList][-l log file] [-v LOGLEVEL]".format( __file__ ),
         "",
         "   -h show this help.",
         "   -i Listen on device. Default {}.".format(LISTEN_ON_DEVICE),
         "   -t target ip. Default {}.".format(TARGET_ADDRESS) ,
         "   -r target port. Default {}.".format(TARGET_PORT),
+        "   -w <lista de ips separadas por ,>",
         "   -l file_path",
         "   -v LEVEL. Default INFO.".format(LOG_LEVEL),
         "",
@@ -34,9 +36,10 @@ def show_help( error=0 ):
         "Examples:",
         "     {} -h ".format( __file__ ),
         "     {} -i eth0".format( __file__ ),
-        "     {} -l /var/log/wolRelay.log".format( __file__ ),
         "     {} -t 192.168.1.100".format( __file__ ),
         "     {} -r 9000".format( __file__ ),
+        "     {} -w '192.168.1.2,192.168.1.3".format( __file__),
+        "     {} -l /var/log/wolRelay.log".format( __file__ ),
         "     {} -v DEBUG".format( __file__),
         "     LOGLEVEL=DEBUG {}".format(__file__),
         "",
@@ -64,6 +67,16 @@ def get_local_ips():
     #
 
     return local_ips
+# 
+
+def sender_allowed( address):
+    if len(WHO_CAN_SEND_WOL) > 0 and address not in WHO_CAN_SEND_WOL :
+        logger.info(f"Sender {address} not allowed.")
+        return False
+    #
+    logger.debug(f"Sender {address} allowed.")
+    return True
+#
 
 
 def detectar_wol_paquetes(packet):
@@ -91,8 +104,10 @@ def detectar_wol_paquetes(packet):
             logger.debug(f"EtherWol: {etherWol}")
 
             if wol_ip_from not in local_ip_list :
-                logger.info( "wol to '{}' from remote ip. resend to '{}:{}'".format(etherWol, TARGET_ADDRESS, TARGET_PORT) )
-                send_magic_packet( etherWol, ip_address=TARGET_ADDRESS, port=TARGET_PORT )
+                if sender_allowed( wol_ip_from) :
+                    logger.info( "wol to '{}' from remote ip. resend to '{}:{}'".format(etherWol, TARGET_ADDRESS, TARGET_PORT) )
+                    send_magic_packet( etherWol, ip_address=TARGET_ADDRESS, port=TARGET_PORT )
+                #
             else:
                 logger.debug( "wol from local ip")
             #
@@ -121,7 +136,7 @@ if __name__ == '__main__':
     logger.addHandler(consoleHandler)
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:],'hi:l:t:r:v:')
+        opts, args = getopt.getopt(sys.argv[1:],'hi:t:r:w:l:v:')
     except getopt.GetoptError:
         logger.critical("Error on options")        
         show_help( 2 )
@@ -137,14 +152,6 @@ if __name__ == '__main__':
             LISTEN_ON_DEVICE = arg
             logger.debug( "Set new Sniff on device: {}".format( LISTEN_ON_DEVICE ))
 
-        elif opt == "-l":
-            LOG_FILE = arg
-            logger.debug( "Set new Log File:{}".format( LOG_FILE ))
-
-            fileHandler = logging.FileHandler( LOG_FILE )
-            fileHandler.setFormatter(logFormatter)
-            logger.addHandler(fileHandler)
-
         elif opt == '-t':
             TARGET_ADDRESS = arg
             logger.debug( "Set new TARGET Address:{}".format( TARGET_ADDRESS ))
@@ -153,11 +160,23 @@ if __name__ == '__main__':
             TARGET_PORT = int( arg )
             logger.debug( "Set new TARGET Port:{}".format( TARGET_PORT ))
 
+        elif opt == '-w':
+            WHO_CAN_SEND_WOL = arg.split(",")
+            logger.debug( "Set new Senders allowed: '{}'".format( WHO_CAN_SEND_WOL ))
+
+        elif opt == "-l":
+            LOG_FILE = arg
+            logger.debug( "Set new Log File:{}".format( LOG_FILE ))
+
+            fileHandler = logging.FileHandler( LOG_FILE )
+            fileHandler.setFormatter(logFormatter)
+            logger.addHandler(fileHandler)
+
         elif opt == '-v':
             LOGLEVEL = arg
-            logger.debug( "Set new LOGLEVEL:{}".format( LOGLEVEL ))
             try :
                 logger.setLevel(LOGLEVEL)
+                logger.debug( "Set new LOGLEVEL:{}".format( LOGLEVEL ))
             except:
                 logger.critical( "LOGLEVEL ERROR ON ID '{}'".format(LOGLEVEL))
                 show_help(3)
@@ -168,6 +187,7 @@ if __name__ == '__main__':
     logger.info( "Sniff on device: {}".format( LISTEN_ON_DEVICE ))
     logger.info( "TARGET Address:{}".format( TARGET_ADDRESS ))
     logger.info( "TARGET Port:{}".format( TARGET_PORT ))
+    logger.info( "Senders allowed; '{}'".format( WHO_CAN_SEND_WOL ))
     logger.info( "Log File:{}".format( LOG_FILE ))
     logger.info( "LOG LEVEL:{}".format( LOGLEVEL ))
 
