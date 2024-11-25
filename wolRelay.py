@@ -105,7 +105,7 @@ def detectar_wol_paquetes(packet):
 
             if wol_ip_from not in local_ip_list :
                 if sender_allowed( wol_ip_from) :
-                    logger.info( "wol to '{}' from remote ip. resend to '{}:{}'".format(etherWol, TARGET_ADDRESS, TARGET_PORT) )
+                    logger.info( "wol to '{}' from remote ip '{}'. resend to '{}:{}'".format(etherWol, wol_ip_from, TARGET_ADDRESS, TARGET_PORT) )
                     send_magic_packet( etherWol, ip_address=TARGET_ADDRESS, port=TARGET_PORT )
                 #
             else:
